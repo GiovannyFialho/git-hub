@@ -2,3 +2,6 @@
 
 ## Instalação:
 ```yarn```
+
+## Execução
+```yarn start```

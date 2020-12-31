@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouteMatch, Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
@@ -11,12 +11,40 @@ interface RepositoryParams {
     repository: string
 }
 
+interface Repositories {
+    full_name: string;
+    description: string;
+    stargazers_count: number;
+    forks_count: number;
+    open_issues_count: number;
+    owner: {
+        login: string;
+        avatar_url: string;
+    }
+}
+
+interface Issue {
+    id: string;
+    title: string;
+    html_url: string;
+    user: {
+        login: string;
+    }
+}
+
 const Repository: React.FC = () => {
+    const [repository, setRepository] = useState<Repositories | null>(null)
+    const [issues, setIssues] = useState<Issue[]>([])
+
     const { params } = useRouteMatch<RepositoryParams>()
 
     useEffect(() => {
         api.get(`repos/${params.repository}`).then(response => {
-            console.log(response.data)
+            setRepository(response.data)
+        })
+
+        api.get(`repos/${params.repository}/issues`).then(response => {
+            setIssues(response.data)
         })
     }, [params.repository])
 
@@ -28,37 +56,46 @@ const Repository: React.FC = () => {
                     <FiChevronLeft size={16} /> Voltar
                 </Link>
             </Header>
-            <RepositoryInfo>
-                <header>
-                    <img src="https://avatars0.githubusercontent.com/u/8743217?v=4" alt="Giovanny Fialho"/>
-                    <div>
-                        <strong>Giovanny Fialho</strong>
-                        <p>Descrição</p>
-                    </div>
-                </header>
-                <ul>
-                    <li>
-                        <strong>1800</strong>
-                        <span>Start</span>
-                    </li>
-                    <li>
-                        <strong>48</strong>
-                        <span>Forks</span>
-                    </li>
-                    <li>
-                        <strong>67</strong>
-                        <span>Issues abertas</span>
-                    </li>
-                </ul>
-            </RepositoryInfo>
+
+            {repository && (
+                <RepositoryInfo>
+                    <header>
+                        <img
+                            src={repository.owner.avatar_url}
+                            alt={repository.owner.login}
+                        />
+                        <div>
+                            <strong>{repository.full_name}</strong>
+                            <p>{repository.description}</p>
+                        </div>
+                    </header>
+                    <ul>
+                        <li>
+                            <strong>{repository.stargazers_count}</strong>
+                            <span>Start</span>
+                        </li>
+                        <li>
+                            <strong>{repository.forks_count}</strong>
+                            <span>Forks</span>
+                        </li>
+                        <li>
+                            <strong>{repository.open_issues_count}</strong>
+                            <span>Issues abertas</span>
+                        </li>
+                    </ul>
+                </RepositoryInfo>
+            )}
+
             <Issues>
-                <Link to="dsdas">
-                    <div>
-                        <strong>sdada</strong>
-                        <p>dsads</p>
-                    </div>
-                    <FiChevronRight size={20} />
-                </Link>
+                {issues.map(issue => (
+                    <a key={issue.id} href={issue.html_url}>
+                        <div>
+                            <strong>{issue.title}</strong>
+                            <p>{issue.user.login}</p>
+                        </div>
+                        <FiChevronRight size={20} />
+                    </a>
+                ))}
             </Issues>
         </>
     )
