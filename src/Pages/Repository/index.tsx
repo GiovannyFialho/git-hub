@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useRouteMatch, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiFolder } from 'react-icons/fi'
 
 import logoImg from '../../assets/github-logo.svg'
 import api from '../../services/api'
@@ -17,6 +17,7 @@ interface Repositories {
     stargazers_count: number;
     forks_count: number;
     open_issues_count: number;
+    html_url: string;
     owner: {
         login: string;
         avatar_url: string;
@@ -82,13 +83,21 @@ const Repository: React.FC = () => {
                             <strong>{repository.open_issues_count}</strong>
                             <span>Issues abertas</span>
                         </li>
+                        <li>
+                            <a href={repository.html_url} target="_blank" rel="noreferrer">
+                                <strong>
+                                    <FiFolder />
+                                </strong>
+                                <span>Repositório</span>
+                            </a>
+                        </li>
                     </ul>
                 </RepositoryInfo>
             )}
 
             <Issues>
                 {issues.map(issue => (
-                    <a key={issue.id} href={issue.html_url}>
+                    <a key={issue.id} href={issue.html_url} target="_blank" rel="noreferrer">
                         <div>
                             <strong>{issue.title}</strong>
                             <p>{issue.user.login}</p>
